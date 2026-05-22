@@ -11,9 +11,7 @@ CSGPlot 是一款专为电力系统仿真数据处理设计的工具。主要用
 
 请通过下方的下载按钮获取最新版本的安装程序：
 
-[![Download CSGPlot](https://img.shields.io/badge/下载-最新版本-blue?style=for-the-badge&logo=github)](https://github.com/Aloha-hyh/CSGPlot-Releases/releases/latest/download/CSGPlot_Setup.exe)
-
-> **注**：如果上述链接失效，请点击页面右侧的 [Releases](https://github.com/Aloha-hyh/CSGPlot-Releases/releases) 区域手动选择版本。
+ [Releases](https://github.com/Aloha-hyh/CSGPlot-Releases/releases) 
 
 ## 快速上手
 1. 下载并安装 `CSGPlot_Setup.exe`。
