@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSGPlot V1.0 — COMTRADE 波形查看器使用手册</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a1a;
+      --text-secondary: #555;
+      --border: #e0e0e0;
+      --accent: #0076a8;
+      --accent-light: #e8f4f8;
+      --warning: #d95319;
+      --code-bg: #f5f5f5;
+      --sidebar-w: 260px;
+      --max-w: 1060px;
+      --radius: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Segoe UI", "Microsoft YaHei", -apple-system, sans-serif;
+      color: var(--text);
+      background: #fafafa;
+      line-height: 1.7;
+    }
+
+    /* ── Sidebar ── */
+    nav {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: var(--sidebar-w);
+      background: #1e2a32;
+      color: #ccc;
+      overflow-y: auto;
+      padding: 28px 0 40px;
+      z-index: 10;
+      font-size: 14px;
+    }
+
+    nav .logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      padding: 0 24px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      margin-bottom: 12px;
+      letter-spacing: .5px;
+    }
+
+    nav .logo span {
+      color: #4dbeee;
+    }
+
+    nav a {
+      display: block;
+      color: #b0b8c0;
+      text-decoration: none;
+      padding: 6px 24px;
+      transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: #fff;
+      background: rgba(255, 255, 255, .06);
+      border-left-color: #4dbeee;
+    }
+
+    nav .section-title {
+      color: #7a8a98;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 18px 24px 6px;
+      font-weight: 600;
+    }
+
+    /* ── Main Content ── */
+    main {
+      margin-left: var(--sidebar-w);
+      max-width: var(--max-w);
+      padding: 40px 48px 80px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #111;
+    }
+
+    h1+p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 48px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+      color: #111;
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 32px 0 10px;
+      color: #222;
+    }
+
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 20px 0 8px;
+      color: #333;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: #333;
+    }
+
+    ul,
+    ol {
+      margin: 8px 0 16px 24px;
+      color: #333;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+
+    /* ── Info boxes ── */
+    .tip {
+      background: #e8f4f8;
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+    }
+
+    .tip::before {
+      content: "💡 提示：";
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .warning {
+      background: #fff5f0;
+      border-left: 4px solid var(--warning);
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+    }
+
+    .warning::before {
+      content: "⚠️ 注意：";
+      font-weight: 600;
+      color: var(--warning);
+    }
+
+    /* ── Shortcut table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f2f2f2;
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td {
+      background: #fafcfe;
+    }
+
+    kbd {
+      display: inline-block;
+      padding: 2px 7px;
+      font-family: "Cascadia Code", "Consolas", monospace;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 1px 0 #bbb;
+      margin: 0 2px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav {
+        display: none;
+      }
+
+      main {
+        margin-left: 0;
+        padding: 24px 20px 60px;
+      }
+    }
+
+    .back-top {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+      opacity: .8;
+      transition: opacity .15s;
+    }
+
+    .back-top:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <nav>
+    <div class="logo">CSG<span>Plot</span> <small style="font-size:12px;font-weight:400;">V1.0</small></div>
+    <div class="section-title">入门</div>
+    <a href="#intro">简介与系统要求</a>
+    <a href="#launch">启动与文件加载</a>
+    <div class="section-title">界面</div>
+    <a href="#layout">界面布局</a>
+    <a href="#sidebar">左侧面板</a>
+    <a href="#toolbar">顶部工具栏</a>
+    <div class="section-title">波形操作</div>
+    <a href="#subplots">子图管理</a>
+    <a href="#channels">通道拖放</a>
+    <a href="#navigation">导航与缩放</a>
+    <a href="#alignment">时间对齐</a>
+    <a href="#markers">A/B 标记线</a>
+    <a href="#extremum">最大值/最小值</a>
+    <div class="section-title">分析工具</div>
+    <a href="#calculate">计算波形</a>
+    <a href="#fft">FFT 频谱分析</a>
+    <div class="section-title">导出</div>
+    <a href="#export">导出与剪贴板</a>
+    <a href="#clipboard">粘贴波形数据</a>
+    <div class="section-title">参考</div>
+    <a href="#shortcuts">快捷键总表</a>
+    <a href="#versions">版本历史</a>
+  </nav>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <main>
+
+    <h1>CSGPlot V1.0 使用手册</h1>
+    <p>COMTRADE 波形查看器 — 面向电力系统暂态分析的桌面工具 &nbsp;|&nbsp; 作者：CSG Huang Yihong</p>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="intro">1. 简介与系统要求</h2>
+
+    <p>CSGPlot 是一款 Windows 桌面应用，用于读取 IEEE COMTRADE（1999/2013）波形记录文件，在交互式多子图界面中展示模拟量和数字量通道。支持公式编辑器生成计算波形、FFT
+      频谱分析、以及矢量图形导出，适用于故障分析、继电保护测试复核和技术报告制作。</p>
+
+    <table>
+      <tr>
+        <td style="width:140px;font-weight:600;">支持格式</td>
+        <td>COMTRADE ASCII / Binary（.cfg + .dat + .dmf/.hdr），CSV/TXT</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">操作系统</td>
+        <td>Windows 10 / 11 (x64)</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">运行环境</td>
+        <td>Python 3.11–3.13（从源码运行）或直接双击 exe</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">依赖库</td>
+        <td>PySide6 ≥ 6.7, pyqtgraph ≥ 0.13.7, numpy ≥ 1.26, pywin32</td>
+      </tr>
+    </table>
+
+    <div class="tip">首次使用建议先阅读 <a href="#layout">界面布局</a> 和 <a href="#channels">通道拖放</a> 两节，这是最核心的操作流程。</div>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="launch">2. 启动与文件加载</h2>
+
+    <h3>2.1 启动方式</h3>
+    <ul>
+      <li><strong>双击 exe：</strong>直接运行 <code>CSGPlotV1.0.exe</code>，无任何依赖。</li>
+      <li><strong>命令行传参：</strong>在 PowerShell 中执行 <code>.\CSGPlotV1.0.exe .\recording.CFG</code>
+        可直接在启动时打开指定波形文件，支持传入多个文件。</li>
+    </ul>
+
+    <h3>2.2 加载 COMTRADE 文件</h3>
+    <p>CSGPlot 支持<strong>三种</strong>加载文件的方式：</p>
+    <ol>
+      <li><strong>Open 按钮：</strong>点击顶部工具栏的 <strong>Open</strong> 按钮（或按 <kbd>Ctrl+O</kbd>），在文件对话框中选中 <code>.cfg</code> 或
+        <code>.txt</code> 文件。软件会自动寻找同名 <code>.dat</code> 文件；对于二进制格式还会读取 <code>.dmf</code> 和 <code>.hdr</code>。</li>
+      <li><strong>拖拽文件：</strong>将 <code>.cfg</code> 或 <code>.txt</code> 文件从资源管理器直接拖入左侧 <strong>Documents</strong>
+        区域，软件自动加载。可一次拖入多个文件。</li>
+      <li><strong>命令行启动：</strong>启动时在命令行中传入文件路径（见 2.1）。</li>
+    </ol>
+
+    <div class="tip">加载大文件时使用后台线程，窗口不会冻结。状态栏会显示加载进度。若加载失败，将弹出错误提示对话框。</div>
+
+    <div class="warning">当前版本支持 ASCII 和 BINARY 两种 COMTRADE DAT 格式。文件对话框虽列出 <code>.cff</code>，但暂不支持该格式。</div>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="layout">3. 界面布局</h2>
+
+
+    <p>主窗口分为四大区域：</p>
+
+    <table>
+      <tr>
+        <td style="width:60px;font-weight:600;">①</td>
+        <td style="width:100px;">顶部工具栏</td>
+        <td>Open、Export、Calculate、FFT、Max/Min、Add/Remove Plot、对齐控件、AB Data</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">②</td>
+        <td>左侧边栏</td>
+        <td>上半部分 <strong>Documents</strong>（已加载文件列表），下半部分 <strong>Channels</strong>（当前选中文件的通道列表），以及
+          <strong>计算结果</strong> 面板</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">③</td>
+        <td>波形子图区</td>
+        <td>默认 5 个空白子图，最多 12 个。每个子图左侧有彩色波形标签栏</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">④</td>
+        <td>底部状态栏</td>
+        <td>显示就绪状态、A/B 标记线时间差（dt）与频率（f），右下角显示开发者署名</td>
+      </tr>
+    </table>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="sidebar">4. 左侧面板</h2>
+
+    <h3>4.1 Documents 文件列表</h3>
+    <p>已加载的每个 COMTRADE 文件作为一个独立 <strong>Document</strong> 显示在左侧上半区域。文件列表条目格式为：</p>
+    <p
+      style="background:var(--code-bg);padding:6px 12px;border-radius:4px;font-family:Consolas,monospace;font-size:13px;">
+      文件名 (N个模拟量通道A, M个数字量通道D)
+    </p>
+    <ul>
+      <li><strong>单击</strong>某个 Document 条目，右侧 Channels 面板会切换显示该文件的通道列表。</li>
+      <li><strong>同一个会话</strong>中可同时打开多个 CFG 文件，来自不同文件的通道可以拖入同一个子图中进行对比。</li>
+      <li>选中 Document 后，其通道颜色按预设调色板自动分配（8 种颜色循环）。</li>
+    </ul>
+
+    <h3>4.2 Channels 通道列表</h3>
+    <p>选中 Document 后，该文件的所有模拟量通道（Analog）以彩色标签形式显示。每个标签格式为：</p>
+    <p
+      style="background:var(--code-bg);padding:6px 12px;border-radius:4px;font-family:Consolas,monospace;font-size:13px;">
+      ch_name (phase) [unit]
+    </p>
+    <ul>
+      <li><strong>拖放：</strong>用鼠标按住通道标签，直接拖入右侧任意子图即可显示波形。详见 <a href="#channels">通道拖放</a>。</li>
+      <li><strong>单位显示：</strong>当数据源提供了通道单位时，标签中会展示。若子图中所有可见波形共享同一单位，Y 轴自动标注该单位。</li>
+    </ul>
+
+    <h3>4.3 计算结果面板</h3>
+    <p>通过 <strong>Calculate</strong> 功能创建的计算波形会出现在侧边栏底部的「计算结果」面板中，同样可拖入子图。每条计算结果旁有 <strong>X</strong> 按钮可删除。</p>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="toolbar">5. 顶部工具栏</h2>
+
+    <p>工具栏分为 5 个功能组，从左至右：</p>
+
+    <h4>File 组</h4>
+    <ul>
+      <li><strong>Open：</strong>打开 COMTRADE 文件（<kbd>Ctrl+O</kbd>）。</li>
+      <li><strong>Export：</strong>弹出导出对话框，可勾选子图后导出为 PNG、SVG 或复制 EMF 到剪贴板。</li>
+    </ul>
+
+    <h4>Analyze 组</h4>
+    <ul>
+      <li><strong>Calculate：</strong>打开公式编辑器，创建计算波形（支持 +、-、*、/、括号、系数、内置函数）。</li>
+      <li><strong>FFT：</strong>对选中通道执行 FFT 频谱分析，进入双窗口（时域 + 频域）视图。</li>
+      <li><strong>Max / Min：</strong>可勾选的按钮，激活后在 A/B 标记线之间显示各波形的最大值或最小值标记。</li>
+    </ul>
+
+    <h4>Layout 组</h4>
+    <ul>
+      <li><strong>Add Plot：</strong>新增一个空白子图（最多 12 个）。</li>
+      <li><strong>Remove Plot：</strong>删除当前选中的子图。</li>
+    </ul>
+
+    <h4>View Align 组</h4>
+    <p>包含时间轴对齐下拉框和波形对齐控件，详见 <a href="#alignment">时间对齐</a>。</p>
+
+    <h4>Markers 组</h4>
+    <ul>
+      <li><strong>AB Data：</strong>可勾选按钮。激活后在每个子图中显示 A/B 标记线对应 Y 轴数据。详见 <a href="#markers">A/B 标记线</a>。</li>
+    </ul>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="subplots">6. 子图管理</h2>
+
+    <p>子图是 CSGPlot 显示波形的基本单元：</p>
+    <ul>
+      <li><strong>默认数量：</strong>启动时自动创建 5 个空白子图。</li>
+      <li><strong>数量范围：</strong>最少 1 个，最多 12 个。点击 <strong>Add Plot</strong> 新增，点击 <strong>Remove Plot</strong> 删除当前选中子图。
+      </li>
+      <li><strong>选中子图：</strong>单击子图区域（非波形标签区域）即可选中。当前选中的子图边框高亮。部分快捷键（如 <kbd>Y</kbd>）仅作用于当前选中子图。</li>
+      <li><strong>鼠标滚轮：</strong>在波形区域滚动鼠标滚轮会<strong>垂直滚动子图列表</strong>，而非缩放波形。这一设计避免了误操作。</li>
+      <li><strong>删除波形：</strong>双击子图左侧的彩色波形标签即可从该子图中移除该波形。</li>
+    </ul>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="channels">7. 通道拖放</h2>
+
+    <p>通道拖放是 CSGPlot 最核心的交互方式。操作流程如下：</p>
+
+    <ol>
+      <li>在左侧 <strong>Channels</strong> 列表中，用鼠标左键按住一个通道标签。</li>
+      <li>拖动到右侧目标子图的波形区域上方。</li>
+      <li>释放鼠标，波形即在该子图中渲染。</li>
+    </ol>
+
+
+    <h4>拖放规则与高级操作：</h4>
+    <ul>
+      <li><strong>跨文件拖放：</strong>可将不同 Document 的通道拖入同一子图，实现不同录波文件的波形对比。</li>
+      <li><strong>子图间拖放：</strong>拖动子图左侧的<strong>彩色波形标签</strong>到另一个子图，会在目标子图中<strong>复制</strong>一份该波形视图（原波形保留）。</li>
+      <li><strong>波形标签颜色：</strong>每个通道的颜色在会话中保持一致，便于跨子图识别同一物理量。</li>
+      <li><strong>Y 轴单位：</strong>当一个子图中所有可见波形共享同一个单位时，Y 轴自动标注该单位；单位不一致时 Y 轴不显示单位。</li>
+    </ul>
+
+    <h4>波形标签交互：</h4>
+    <ul>
+      <li><strong>单击标签：</strong>将该波形设为当前子图的"活跃 Y 轴波形"，Y 轴范围自动适配该波形，并在 Y 轴上显示其单位。</li>
+      <li><strong>Ctrl+单击标签：</strong>将该波形加入"对齐选中集"，用于后续执行 Start / Mutation 对齐操作。</li>
+      <li><strong>双击标签：</strong>从子图中移除该波形。</li>
+      <li><strong>拖拽标签：</strong>将波形复制到另一个子图。</li>
+    </ul>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="navigation">8. 导航与缩放</h2>
+
+    <h3>8.1 键盘快捷键</h3>
+    <ul>
+      <li><kbd>X</kbd> — <strong>自动适配全局 X 轴：</strong>根据当前子图所有波形的数据范围，统一设置所有子图的 X 轴（时间轴）范围。</li>
+      <li><kbd>Y</kbd> — <strong>自动适配当前子图 Y 轴：</strong>根据当前子图当前可视 X 范围内所有波形的 Y 值，自动设置该子图的 Y 轴范围。</li>
+    </ul>
+
+    <h3>8.2 鼠标拖拽缩放</h3>
+    <p>在子图波形区域按住鼠标左键并拖拽，软件会根据拖拽方向自动判断缩放模式：</p>
+    <ul>
+      <li><strong>水平拖拽（宽 &gt; 3× 高）：</strong>仅缩放 X 轴（时间轴），Y 轴保持不变。所有子图的 X 轴联动。</li>
+      <li><strong>垂直拖拽（高 &gt; 3× 宽）：</strong>仅缩放 Y 轴，X 轴保持不变。仅作用于当前子图。</li>
+      <li><strong>矩形拖拽（其他比例）：</strong>同时缩放 X 和 Y 轴。X 轴全局联动，Y 轴仅作用于当前子图。</li>
+    </ul>
+
+    <div class="tip">拖拽距离过小（&lt; 1px）不会触发缩放，避免单击时误缩放。</div>
+
+    <h3>8.3 精确设置轴范围</h3>
+    <ul>
+      <li><strong>双击 X 轴区域</strong>（子图底部 36px 范围内），弹出对话框输入 X 轴最小值和最大值（逗号分隔）。</li>
+      <li><strong>双击 Y 轴区域</strong>（子图左侧 58px 范围内），弹出对话框输入 Y 轴最小值和最大值。</li>
+    </ul>
+
+    <h3>8.4 智能时间轴</h3>
+    <p>X 轴自动在<strong>毫秒（ms）</strong>和<strong>秒（s）</strong>之间切换：</p>
+    <ul>
+      <li>当可视范围内最大刻度 &gt; 100 ms 时，显示为秒（s）。</li>
+      <li>否则显示为毫秒（ms）。</li>
+      <li>小数位数根据刻度步长自动确定，保证至少两位有效数字。</li>
+    </ul>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="alignment">9. 时间对齐</h2>
+
+    <h3>9.1 全局时间参考（Alignment 下拉框）</h3>
+    <p>位于工具栏 View Align 组上方，提供三种时间对齐模式，对所有子图生效：</p>
+    <ul>
+      <li><strong>Trigger（触发时刻）：</strong>以录波文件的触发时刻（trigger_time）作为时间零点。各文件的触发时刻对齐到 t=0。</li>
+      <li><strong>Start（起始时刻）：</strong>以录波文件的第一个采样点作为时间零点。</li>
+      <li><strong>Absolute（绝对时间）：</strong>以实际时间戳（start_time）为基准，不同文件按绝对时间对齐。</li>
+    </ul>
+
+    <h3>9.2 波形级时间对齐</h3>
+    <p>工具栏 View Align 组提供精细的波形对齐控件：</p>
+
+    <h4>自动对齐</h4>
+    <ul>
+      <li><strong>Start 按钮：</strong>将对齐选中的波形，使其第一个采样点的时间对齐到基准波形的起始时间。</li>
+      <li><strong>Mutation 按钮：</strong>将对齐选中的波形，使其最大突变点（导数绝对值最大处）对齐到基准波形的对应位置。</li>
+    </ul>
+
+    <h4>手动偏移</h4>
+    <ul>
+      <li>在输入框中键入偏移值（单位：ms），点击 <strong>Offset</strong> 按钮对选中的波形应用该时间偏移。</li>
+      <li>点击 <strong>Clear</strong> 按钮清除选中波形的时间偏移，恢复默认对齐。</li>
+    </ul>
+
+    <h4>如何选中波形进行对齐</h4>
+    <ol>
+      <li><strong>子图级选中：</strong>单击子图选中它，然后使用对齐按钮 — 操作将作用于该子图中所有波形。</li>
+      <li><strong>波形级选中：</strong><kbd>Ctrl</kbd> + 单击子图的波形标签，将该波形加入对齐选中集。之后的对齐操作仅作用于选中的波形。</li>
+    </ol>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="markers">10. A/B 标记线</h2>
+
+
+    <h3>10.1 显示与隐藏</h3>
+    <ul>
+      <li>按 <kbd>A</kbd> 键切换 <strong>A 标记线</strong>（红色）的显示/隐藏。</li>
+      <li>按 <kbd>B</kbd> 键切换 <strong>B 标记线</strong>（蓝色）的显示/隐藏。</li>
+    </ul>
+    <p>首次按下时，标记线会出现在鼠标光标所在子图的对应位置。如果光标不在任何子图上，标记线出现在当前选中子图的 X 轴中点。</p>
+
+    <h3>10.2 拖动标记线</h3>
+    <p>用鼠标左键按住标记线附近（容差 18px），直接拖动到目标时间位置。拖动时标记线实时跟随鼠标。</p>
+
+    <h3>10.3 标记线数据 (AB Data)</h3>
+    <p>点击工具栏 <strong>AB Data</strong> 按钮激活后：</p>
+    <ul>
+      <li>每个子图中显示 A 和 B 标记线位置各波形的 Y 轴数值。</li>
+      <li>底部状态栏显示 dt（A、B 线之间的时间差，单位 ms）和 f（对应频率 = 1/dt）。</li>
+      <li>再次点击 AB Data 按钮关闭数值显示。</li>
+    </ul>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="extremum">11. 最大值 / 最小值标记</h2>
+
+    <p>工具栏上的 <strong>Max</strong> 和 <strong>Min</strong> 按钮是可勾选的开关：</p>
+    <ul>
+      <li><strong>Max：</strong>激活后，在各子图的 A/B 标记线之间的区间内，为每条波形标注其最大值点。</li>
+      <li><strong>Min：</strong>激活后，同样在 A/B 区间内标注各波形的最小值点。</li>
+      <li>两个按钮可独立勾选，也可同时勾选。</li>
+      <li>如果 A 或 B 标记线未激活，按钮仍可勾选但不会显示标记（因为没有有效区间）。</li>
+    </ul>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="calculate">12. 计算波形</h2>
+
+    <p>点击工具栏 <strong>Calculate</strong> 按钮打开公式编辑器对话框。计算波形是由已加载通道通过数学表达式合成的新波形。</p>
+
+    <h3>12.1 公式语法</h3>
+    <ul>
+      <li><strong>变量：</strong>使用 <code>S1</code>、<code>S2</code>、<code>S3</code>…… 表示已加载的通道。公式编辑器对话框中会列出所有可用变量及其对应的通道名称。
+      </li>
+      <li><strong>运算符：</strong><code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>()</code>，支持括号嵌套。</li>
+      <li><strong>系数：</strong>直接写数字，如 <code>2*S1</code>、<code>0.5*S2</code>。</li>
+      <li><strong>内置函数（从对话框中选择）：</strong>
+        <ul>
+          <li><code>abs(x)</code> — 绝对值</li>
+          <li><code>integral(x)</code> — 积分（对时间）</li>
+          <li><code>diff(x)</code> — 微分（对时间）</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>12.2 示例</h3>
+    <table>
+      <tr>
+        <th>公式</th>
+        <th>含义</th>
+      </tr>
+      <tr>
+        <td><code>S1 + S2</code></td>
+        <td>S1 与 S2 的逐点相加</td>
+      </tr>
+      <tr>
+        <td><code>2*S1 - S2</code></td>
+        <td>S1 的两倍减去 S2</td>
+      </tr>
+      <tr>
+        <td><code>integral(S1)</code></td>
+        <td>S1 对时间的积分</td>
+      </tr>
+      <tr>
+        <td><code>abs(S1 - S2)</code></td>
+        <td>S1 与 S2 之差的绝对值</td>
+      </tr>
+    </table>
+
+    <h3>12.3 时间轴插值</h3>
+    <p>当公式中的变量使用不同的时间轴（来自不同采样率的文件或对齐全后偏移的波形）时，非基准波形会被自动<strong>线性插值</strong>到基准波形的时间轴上，确保逐点运算的正确性。</p>
+
+    <h3>12.4 使用计算结果</h3>
+    <p>创建成功后，计算结果出现在左侧边栏底部的「计算结果」面板中。该结果可以像普通通道一样拖入任意子图显示。点击结果旁的 <strong>X</strong> 按钮可删除。</p>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="fft">13. FFT 频谱分析</h2>
+
+    <p>在左侧 Channels 列表中选中一个通道，然后点击工具栏 <strong>FFT</strong> 按钮（或通过通道右键菜单），打开 FFT 分析对话框。</p>
+
+    <h3>13.1 分析窗口</h3>
+    <p>FFT 对话框分为上下两个图：</p>
+    <ul>
+      <li><strong>上方 Signal 图：</strong>时域波形。其中高亮区域为 FFT 分析窗口。可用鼠标拖拽窗口边界来调整分析范围。</li>
+      <li><strong>下方 FFT 图：</strong>频域幅度谱。X 轴可选择频率（Hz）或谐波次数（Harmonic），Y 轴可选择多种显示方式。</li>
+    </ul>
+
+    <h3>13.2 参数设置</h3>
+    <table>
+      <tr>
+        <td style="width:140px;font-weight:600;">基频 (Hz)</td>
+        <td>电力系统基频，默认 50 Hz</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">周期数</td>
+        <td>分析窗口包含的基频周期数</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">起始时间 (s)</td>
+        <td>分析窗口的起始时刻</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">最大频率 (Hz)</td>
+        <td>频谱显示的上限频率</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">窗函数</td>
+        <td>Hanning / Hamming / Blackman / Rectangular / Bartlett / Kaiser</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">去直流</td>
+        <td>勾选后从信号中减去均值后再做 FFT</td>
+      </tr>
+    </table>
+
+    <h3>13.3 显示模式</h3>
+    <ul>
+      <li><strong>Bar — Absolute：</strong>柱状图，显示绝对幅度值。</li>
+      <li><strong>Bar — % Fundamental：</strong>柱状图，以基频幅度为 100% 的百分比显示。</li>
+      <li><strong>Bar — % Base Value：</strong>柱状图，以自定义基准值为 100% 的百分比显示。</li>
+      <li><strong>Bar — % DC：</strong>柱状图，以直流分量为 100% 的百分比显示。</li>
+      <li><strong>List — *：</strong>上述四种模式的文本列表版本，显示各次谐波的频率、幅度（或百分比）和相位角。</li>
+    </ul>
+
+    <h3>13.4 谐波列表</h3>
+    <p>选择 List 显示模式时，对话框右侧或底部显示详细的谐波分析列表，包括：</p>
+    <ul>
+      <li>采样时间 (dt)</li>
+      <li>每周期采样点数</li>
+      <li>直流分量</li>
+      <li>基频幅值（峰值 / RMS）</li>
+      <li>总谐波失真 THD (%)</li>
+      <li>各次谐波的频率、幅度、相位角</li>
+    </ul>
+
+    <h3>13.5 导出 FFT 图形</h3>
+    <p>右键点击 FFT 对话框中的任意图形区域，可导出为 PNG 或复制 EMF 到剪贴板。</p>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="export">14. 导出与剪贴板</h2>
+
+    <h3>14.1 工具栏 Export 按钮</h3>
+    <p>点击 <strong>Export</strong> 按钮弹出导出对话框：</p>
+    <ul>
+      <li>勾选要导出的子图（多选）。</li>
+      <li>选择导出格式：<strong>PNG</strong>（位图）、<strong>SVG</strong>（简化矢量图）、<strong>EMF</strong>（复制到剪贴板）。</li>
+      <li>可设置导出宽度（pt），留空则使用默认宽度 900pt。</li>
+    </ul>
+
+    <h3>14.2 单子图右键导出</h3>
+    <p>在任意子图上<strong>右键点击</strong>，弹出上下文菜单：</p>
+    <ul>
+      <li><strong>Export as PNG：</strong>将当前子图导出为 PNG 文件。PNG 最小宽度 2048px，96 DPI。</li>
+      <li><strong>Export as SVG：</strong>将当前子图导出为 SVG 文件。SVG 包含轴、网格、标签和波形多段线。</li>
+      <li><strong>Copy as EMF：</strong>将当前子图以 EMF 矢量格式复制到系统剪贴板，可直接粘贴到 Microsoft Visio 中作为可编辑的矢量图形。</li>
+    </ul>
+
+    <h3>14.3 导出文件说明</h3>
+    <table>
+      <tr>
+        <td style="width:60px;font-weight:600;">PNG</td>
+        <td>位图格式，适合快速分享。字体 Segoe UI，刻度 9pt，标签 10pt。</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">SVG</td>
+        <td>简化矢量图，仅包含关键元素（坐标轴、网格、标签、波形线），文件体积小，适合嵌入文档。</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">EMF</td>
+        <td>Windows 增强图元文件，通过剪贴板传递。专门为粘贴到 Microsoft Visio 设计，粘贴后为可编辑矢量内容。</td>
+      </tr>
+    </table>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="clipboard">15. 粘贴波形数据</h2>
+
+    <p>CSGPlot 支持从剪贴板<strong>粘贴波形数据</strong>，用于快速查看外部数据（如从 Excel 复制的数据）。</p>
+
+    <h3>15.1 数据格式</h3>
+    <p>剪贴板数据必须是<strong>两列或多列 CSV 文本</strong>：</p>
+    <ul>
+      <li>第一行为列标题（逗号分隔），第一列为时间轴（任意名称，单位视为秒），其余列为模拟量通道名称。</li>
+      <li>第二行起为数值数据，逗号分隔。</li>
+    </ul>
+    <p>示例：</p>
+    <pre style="background:var(--code-bg);padding:10px 14px;border-radius:4px;font-size:13px;overflow-x:auto;">
+Time, Voltage_A, Current_A
+0.000, 0.00, 0.01
+0.001, 0.15, 0.03
+0.002, 0.32, 0.08
+...</pre>
+
+    <h3>15.2 粘贴操作</h3>
+    <ol>
+      <li>复制波形数据到剪贴板（<kbd>Ctrl+C</kbd>）。</li>
+      <li>在 CSGPlot 中选中一个子图（或确保有子图存在）。</li>
+      <li>按 <kbd>Ctrl+V</kbd>。</li>
+      <li>软件自动解析剪贴板内容，创建一个虚拟 Document（命名 <code>Clip_N</code>），并将所有通道添加到选中子图中。</li>
+    </ol>
+
+    <div class="warning">粘贴的数据仅在当前会话中保留，关闭 CSGPlot 后即丢弃。如需长期保存，请将数据导出为 COMTRADE 格式文件。</div>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="shortcuts">16. 快捷键总表</h2>
+
+    <table>
+      <tr>
+        <th style="width:120px;">快捷键</th>
+        <th>作用范围</th>
+        <th>功能</th>
+      </tr>
+      <tr>
+        <td><kbd>Ctrl+O</kbd></td>
+        <td>全局</td>
+        <td>打开 COMTRADE 文件</td>
+      </tr>
+      <tr>
+        <td><kbd>X</kbd></td>
+        <td>全局</td>
+        <td>自动适配所有子图的 X 轴（时间轴）</td>
+      </tr>
+      <tr>
+        <td><kbd>Y</kbd></td>
+        <td>全局</td>
+        <td>自动适配当前子图当前视图的 Y 轴</td>
+      </tr>
+      <tr>
+        <td><kbd>A</kbd></td>
+        <td>全局</td>
+        <td>显示 / 隐藏 A 标记线（红色）</td>
+      </tr>
+      <tr>
+        <td><kbd>B</kbd></td>
+        <td>全局</td>
+        <td>显示 / 隐藏 B 标记线（蓝色）</td>
+      </tr>
+      <tr>
+        <td><kbd>Ctrl+V</kbd></td>
+        <td>全局</td>
+        <td>从剪贴板粘贴波形数据</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">鼠标拖拽（水平）</td>
+        <td>子图</td>
+        <td>X 轴缩放（全局联动）</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">鼠标拖拽（垂直）</td>
+        <td>子图</td>
+        <td>Y 轴缩放（仅当前子图）</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">鼠标拖拽（矩形）</td>
+        <td>子图</td>
+        <td>X+Y 同时缩放</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">双击 X 轴区域</td>
+        <td>子图</td>
+        <td>弹出对话框精确设置 X 轴范围</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">双击 Y 轴区域</td>
+        <td>子图</td>
+        <td>弹出对话框精确设置 Y 轴范围</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">单击波形标签</td>
+        <td>子图</td>
+        <td>将该波形设为活跃 Y 轴参考，Y 轴适配其范围并显示单位</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">Ctrl+单击波形标签</td>
+        <td>子图</td>
+        <td>将该波形加入对齐选中集</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">双击波形标签</td>
+        <td>子图</td>
+        <td>从子图中移除该波形</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">右键子图</td>
+        <td>子图</td>
+        <td>弹出导出菜单（PNG / SVG / EMF）</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">拖拽波形标签</td>
+        <td>子图间</td>
+        <td>在目标子图中复制该波形视图</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">拖拽通道标签</td>
+        <td>侧边栏→子图</td>
+        <td>在子图中添加该通道波形</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">滚轮</td>
+        <td>子图区</td>
+        <td>垂直滚动子图列表（不缩放波形）</td>
+      </tr>
+    </table>
+
+    <!-- ───────────────────────────────── -->
+    <h2 id="versions">17. 版本历史</h2>
+
+    <table>
+      <tr>
+        <th style="width:80px;">版本</th>
+        <th style="width:120px;">日期</th>
+        <th>主要更新</th>
+      </tr>
+      <tr>
+        <td><strong>V1.0</strong></td>
+        <td>2026-05</td>
+        <td>
+          初始正式版。主要功能：
+          COMTRADE ASCII / Binary 解析；
+          多子图拖放交互（1-12 子图）；
+          多文档同时打开；
+          A/B 标记线与 Y 值显示；
+          Max / Min 极值标记；
+          计算波形（公式编辑器 + abs / integral / diff）；
+          FFT 频谱分析（多窗函数、多显示模式、谐波列表）；
+          PNG / SVG / EMF 导出；
+          剪贴板粘贴波形数据；
+          三种时间对齐模式（Trigger / Start / Absolute）；
+          波形级时间对齐（Start / Mutation / 手动偏移）；
+          智能 X 轴（ms/s 自动切换）
+        </td>
+      </tr>
+      <tr>
+        <td><strong>V0.3</strong></td>
+        <td>2026-05</td>
+        <td>早期预览版。基本波形显示、文件加载、拖放通道功能。</td>
+      </tr>
+    </table>
+
+    <hr style="margin:48px 0 20px;border:none;border-top:1px solid var(--border);">
+    <p style="color:var(--text-secondary);font-size:13px;text-align:center;">
+      CSGPlot V1.0 &copy; 2026 CSG Huang Yihong &nbsp;|&nbsp;
+      <a href="https://github.com/Aloha-hyh/CSGPlot" style="color:var(--accent);">GitHub</a>
+    </p>
+
+  </main>
+
+  <a href="#" class="back-top" title="返回顶部">↑</a>
+
+</body>
+
+</html>
