@@ -21,5 +21,5 @@ CSGPlot 是一款专为电力系统仿真数据处理设计的工具。主要用
 3. 选择所需的通道（Channels）并生成图形。
 
 ## 联系与支持
-作者：黄毅宏 (Huang Yihong)
-单位：南方电网电力科学研究院 / 直流输电技术国家重点实验室# CSGPlot-Releases
+作者：Huang Yihong
+
